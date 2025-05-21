@@ -2,13 +2,7 @@ import psycopg2
 import flet as ft
 from dotenv import load_dotenv
 import os
-# conn = psycopg2.connect(database="Gerenciamento_estoque",
-#                         host="localhost",
-#                         user="luan",
-#                         password="Refen123456",
-#                         port="5432")
 
-# cursor = conn.cursor()
 
 load_dotenv()
 
