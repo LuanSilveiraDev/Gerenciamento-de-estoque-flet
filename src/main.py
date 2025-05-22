@@ -9,13 +9,14 @@ from models.connection import DataBaseManager
 def main(page: ft.Page):
     db = DataBaseManager()
     
-    
+    page.window.resizable = False
     page.window.full_screen = False
     page.window.maximized = False
-    page.window.resizable = False
+ 
         
-    page.window.max_width = 1200
+    page.window.max_width = 1000
     page.window.max_height = 800
+
     
     content_area = ft.Column(
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -23,27 +24,50 @@ def main(page: ft.Page):
     )
 
 
-    def adicionar_itens():
-        desc_field = ft.TextField(label="Descrição do produto")
-        mark_field = ft.TextField(label="Marca do produto")
-        value_field = ft.TextField(label="Valor do produto", keyboard_type=ft.KeyboardType.NUMBER)
-        stock_field = ft.TextField(label="Quantidade em estoque", keyboard_type=ft.KeyboardType.NUMBER)
+    def adicionar_itens():  
+        text_stock = ft.Container(
+            ft.Text("Adicionar produto no estoque", size=20),
+            padding=ft.padding.only(bottom=20))
+        desc_field = ft.TextField(label="Descrição do produto", width=500)
+        mark_field = ft.TextField(label="Marca do produto", width=500)  
+        value_field = ft.TextField(label="Valor do produto", keyboard_type=ft.KeyboardType.NUMBER,  width=500)
+        stock_field = ft.TextField(label="Quantidade em estoque", keyboard_type=ft.KeyboardType.NUMBER, width=500)
         
+        form_container = ft.Container(
+            content=ft.Column(
+                controls=[
+                    text_stock,
+                    desc_field,
+                    mark_field,
+                    value_field,
+                    stock_field
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            alignment=ft.alignment.center,
+            padding=20
+        )
         def add_item(e):
-            description = desc_field.value.strip()
-            mark = mark_field.value.strip()
-            value = float(value_field.value)
-            stock_quantity = int(stock_field.value)
-        
-            if not description or not mark:
-                print("Alguma coisa")
-                page.update()
-            elif value < 0 or stock_quantity < 0 :
-                print("Alguma coisa 2")
-                page.update()
-            else:
-                db.add_product(description, mark, value, stock_quantity)
-                atualizar_tabela()
+         
+            try:
+                description = desc_field.value.strip()
+                mark = mark_field.value.strip()
+                value = float(value_field.value)
+                stock_quantity = int(stock_field.value)
+                
+                if not description or not mark:
+                    print("Alguma coisa")
+                    page.update()
+                elif value < 0 or stock_quantity < 0 :
+                    print("Alguma coisa 2")
+                    page.update()
+                else:
+                    db.add_product(description, mark, value, stock_quantity)
+                    atualizar_tabela()
+                    
+            except ValueError:
+                print("Alguma coisa 3")
             
             desc_field.value = ""
             mark_field.value = ""
@@ -54,10 +78,7 @@ def main(page: ft.Page):
         
         btn_add_item = ft.ElevatedButton("Adicionar Item", on_click=add_item)
         return [
-            desc_field,
-            mark_field,
-            value_field,
-            stock_field,
+            form_container,
             btn_add_item
         ]
     
@@ -88,7 +109,7 @@ def main(page: ft.Page):
     
     
     def atualizar_tabela():
-        content_area.controls = db.view_product()
+        content_area.controls = db.view_product(refresh_callback=atualizar_tabela)
         content_area.update()
 
     def handle_change(e):
@@ -160,7 +181,7 @@ def main(page: ft.Page):
                 show_drawer_button,
                 content_area,
                 ],
-            expand=True
+            expand=True,
         )
     )
 

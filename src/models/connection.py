@@ -42,10 +42,10 @@ class DataBaseManager:
         )
         self.conn.commit()
     
-    def view_product(self):
+    def view_product(self, refresh_callback):
         self.cursor.execute(
             """
-            SELECT description, mark, value, stock_quantity FROM produtos;
+            SELECT id,description, mark, value, stock_quantity FROM produtos;
             """
         )
         result = self.cursor.fetchall()
@@ -54,15 +54,32 @@ class DataBaseManager:
         print(columns)
         print(rows)
         
+        
+        texto_estoque = ft.Text("Estoque de produtos")
         mydt = ft.DataTable(
               columns=[
-                  ft.DataColumn(ft.Text("description")),
-                  ft.DataColumn(ft.Text("mark")),
-                  ft.DataColumn(ft.Text("value")),
-                  ft.DataColumn(ft.Text("stock_quantity"))
+                  ft.DataColumn(ft.Text("Descrição")),
+                  ft.DataColumn(ft.Text("Marca")),
+                  ft.DataColumn(ft.Text("Valor")),
+                  ft.DataColumn(ft.Text("Quantidade")),
+                  ft.DataColumn(ft.Text("Deletar"))
               ],
               rows=[]
         )
+        
+        mydt_cener = ft.Container(
+            content=ft.Column(
+                controls=[
+                   texto_estoque,
+                   mydt
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            alignment=ft.alignment.center,
+            padding=20
+        )
+        
         
         for row in rows:
             mydt.rows.append(
@@ -72,12 +89,24 @@ class DataBaseManager:
                         ft.DataCell(ft.Text(row["mark"])),
                         ft.DataCell(ft.Text(f'{row["value"]:.2f}')),
                         ft.DataCell(ft.Text(row["stock_quantity"])),
+                        ft.DataCell(
+                            ft.Row(
+                                [ft.IconButton("delete", icon_color="red",
+                                               data=row,
+                                               on_click=lambda e, pid=row["id"]: deletebtn(e,pid))]
+                                )),
                     ]
                 )
             )
-        return [mydt]
+        
+        def deletebtn(e, id):
+            delete = "DELETE FROM produtos WHERE id = %s"
+            self.cursor.execute(delete, (id,)) 
+            self.conn.commit()
+            refresh_callback()
+            
+            
+        
+        return [mydt_cener]
 
-
-database = DataBaseManager()
-print(database)
-database.view_product()
+    
