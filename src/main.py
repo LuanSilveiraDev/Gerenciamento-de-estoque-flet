@@ -1,14 +1,9 @@
 import flet as ft
-import psycopg2
-import re
-from models.connection import DataBaseManager
-
-
-
+from presentation.products_presentation import ProductUI
+from presentation.clients_presentation import ClientUI
 
 def main(page: ft.Page):
-    db = DataBaseManager()
-    
+  
     page.window.resizable = False
     page.window.full_screen = False
     page.window.maximized = False
@@ -23,107 +18,35 @@ def main(page: ft.Page):
         expand=True 
     )
 
-
-    def adicionar_itens():  
-        text_stock = ft.Container(
-            ft.Text("Adicionar produto no estoque", size=20),
-            padding=ft.padding.only(bottom=20))
-        desc_field = ft.TextField(label="Descrição do produto", width=500)
-        mark_field = ft.TextField(label="Marca do produto", width=500)  
-        value_field = ft.TextField(label="Valor do produto", keyboard_type=ft.KeyboardType.NUMBER,  width=500)
-        stock_field = ft.TextField(label="Quantidade em estoque", keyboard_type=ft.KeyboardType.NUMBER, width=500)
-        
-        form_container = ft.Container(
-            content=ft.Column(
-                controls=[
-                    text_stock,
-                    desc_field,
-                    mark_field,
-                    value_field,
-                    stock_field
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            ),
-            alignment=ft.alignment.center,
-            padding=20
-        )
-        def add_item(e):
-         
-            try:
-                description = desc_field.value.strip()
-                mark = mark_field.value.strip()
-                value = float(value_field.value)
-                stock_quantity = int(stock_field.value)
-                
-                if not description or not mark:
-                    print("Alguma coisa")
-                    page.update()
-                elif value < 0 or stock_quantity < 0 :
-                    print("Alguma coisa 2")
-                    page.update()
-                else:
-                    db.add_product(description, mark, value, stock_quantity)
-                    atualizar_tabela()
-                    
-            except ValueError:
-                print("Alguma coisa 3")
-            
-            desc_field.value = ""
-            mark_field.value = ""
-            value_field.value = ""
-            stock_field.value = ""
-            page.update()
-            
-        
-        btn_add_item = ft.ElevatedButton("Adicionar Item", on_click=add_item)
-        return [
-            form_container,
-            btn_add_item
-        ]
-    
-
-    def adicionar_clientes():
-        name_field = ft.TextField(label="Nome do Cliente")
-        email_field = ft.TextField(label="Email do Cliente")
-        
-        def add_client(e):
-            name = name_field.value.strip()
-            email = email_field.value.strip()
-            
-            if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
-                db.add_cliente(name,email)
-            else:
-                print("alguma coisa")
-            
-            name_field.value = ""
-            email_field.value = ""
-            page.update()
-        
-        btn_add_item = ft.ElevatedButton("Adicionar cliente", on_click=add_client)    
-        return [
-            name_field,
-            email_field,
-            btn_add_item
-        ]
-    
-    
-    def atualizar_tabela():
-        content_area.controls = db.view_product(refresh_callback=atualizar_tabela)
+    def show_table():
+        content_area.controls = [ProductUI(show_table).build_table()]
         content_area.update()
 
+    def add_form():
+        content_area.controls = ProductUI(show_table).build_form_product()
+        content_area.update()
+    
+    
+    def update_client():
+        content_area.controls = [*ClientUI(update_client).buid_form_client()]
+        content_area.update()
+    
+    def add_client():
+        content_area.controls = ClientUI(update_client).buid_form_client()
+        content_area.update()
+    
     def handle_change(e):
         index = e.control.selected_index
         match index:
             
             case 0:
-                atualizar_tabela()
+                show_table()
                 page.scroll = "always"
                 page.update()
             case 1:
-                content_area.controls = adicionar_itens()
+                add_form()
             case 2:
-                content_area.controls = adicionar_clientes()
+                add_client()
         
                 
         # if index == 0:
@@ -184,5 +107,7 @@ def main(page: ft.Page):
             expand=True,
         )
     )
+    
+    show_table()
 
 ft.app(target=main)
