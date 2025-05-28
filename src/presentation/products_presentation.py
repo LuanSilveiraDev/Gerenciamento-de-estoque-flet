@@ -1,8 +1,12 @@
 import flet as ft
 from services.product_services import ProductService
+from presentation.products_uptade_presentation import show_update_dialog
+from models.product_model import Product
+from repository.product_repository import ProductRepository
 
 class ProductUI:
     def __init__(self, refresh_callback):
+        self.update = ProductRepository()
         self.service = ProductService()
         self.refresh_callback = refresh_callback
         
@@ -61,7 +65,8 @@ class ProductUI:
                 ft.DataColumn(ft.Text("Marca")),
                 ft.DataColumn(ft.Text("Valor")),
                 ft.DataColumn(ft.Text("Quantidade")),
-                ft.DataColumn(ft.Text("Deletar"))
+                ft.DataColumn(ft.Text("Deletar")),
+                ft.DataColumn(ft.Text("Atualizar"))
             ],
             rows=[]
         )
@@ -75,7 +80,15 @@ class ProductUI:
                         ft.DataCell(ft.Text(p.mark)),
                         ft.DataCell(ft.Text(f"{p.value:.2f}")),
                         ft.DataCell(ft.Text(str(p.stock_quantity))),
-                        ft.DataCell(ft.IconButton("delete", icon_color="red", data=p.id, on_click=self.delete_product))
+                        ft.DataCell(ft.IconButton("delete", icon_color="red", data=p.id, on_click=self.delete_product)),
+                        ft.DataCell(ft.IconButton("create", icon_color="blue", 
+                            data={
+                                "id": p.id,
+                                "description": p.description,
+                                "mark": p.mark,
+                                "value": p.value,
+                                "stock_quantity": p.stock_quantity                           
+                            }, on_click=self.editar_produto)),
                     ]
                 )
             )
@@ -100,3 +113,21 @@ class ProductUI:
         self.service.delete_product(product_id)
         self.refresh_callback()
     
+
+    def editar_produto(self, e):
+        print("editar produto")
+        data = e.control.data
+        print("Controle do produto")
+        produto = Product(
+            id=data["id"],
+            description=data["description"],
+            mark=data["mark"],
+            value=data["value"],
+            stock_quantity=data["stock_quantity"]
+        )
+        
+        def atualizar_callback(produto_atualizado):
+            self.update.update_product(produto_atualizado)
+            self.refresh_callback()
+        
+        show_update_dialog(e.page, produto, atualizar_callback)

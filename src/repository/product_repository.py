@@ -29,3 +29,16 @@ class ProductRepository:
     def delete(self, product_id):
         self.db.cursor.execute("DELETE FROM produtos WHERE id = %s",(product_id,))
         self.db.conn.commit()
+        
+    def update_product(self, product: Product):
+        self.db.cursor.execute(
+            """
+            UPDATE produtos
+            SET description = %s,
+                mark = %s,
+                value = %s,
+                stock_quantity = %s
+            WHERE id = %s
+            """,(product.description, product.mark, product.value, product.stock_quantity, product.id)
+        )
+        self.db.conn.commit()
