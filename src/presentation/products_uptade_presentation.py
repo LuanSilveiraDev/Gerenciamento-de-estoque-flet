@@ -23,7 +23,7 @@ def show_update_dialog(page: ft.Page, product: Product, on_update_callback):
             elif not stock_field.value:
                 flet_toast.error(page=page, message="A quantidade em estoque é obrigatória.", duration=5)
                 return
-            elif not value_field.value.isdigit():
+            elif not value_field.value.replace(',','.'):
                 flet_toast.error(page=page, message="O valor deve ser um número.", duration=5)
                 return
             else:
@@ -47,7 +47,7 @@ def show_update_dialog(page: ft.Page, product: Product, on_update_callback):
                 message="Produto atualizado com sucesso!",
                 duration=5
             )
-        elif product.value != ValueError:
+        elif ValueError:
             flet_toast.error(
                 page=page,
                 message="Erro ao atualizar o produto.",
