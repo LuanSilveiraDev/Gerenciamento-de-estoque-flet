@@ -1,5 +1,5 @@
 from repository.client_repository import ClientRepository
-from repository.client_repository import Client
+from models.client_model import Client
 import re
 
 class ClientService():
@@ -13,5 +13,9 @@ class ClientService():
         client = Client(name=name, email=email)
         self.repo.add_cliente(client)
 
-            
- 
+    
+    def list_client(self):
+        return self.repo.get_all()
+    
+    def delete_client(self, client_id):
+        self.repo.delete_client(client_id)

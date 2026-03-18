@@ -1,6 +1,9 @@
 import flet as ft
 from presentation.products_presentation import ProductUI
 from presentation.clients_presentation import ClientUI
+from presentation.products_sell_presentation import ProductClientSell
+from presentation.produtos_show import ShowTable
+from presentation.clients_show import ShowClient
 
 def main(page: ft.Page):
   
@@ -15,26 +18,33 @@ def main(page: ft.Page):
     
     content_area = ft.Column(
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll=ft.ScrollMode.ALWAYS,
         expand=True 
     )
 
-    def show_table():
-        content_area.controls = [ProductUI(show_table).build_table()]
-        content_area.update()
-
-    def add_form():
-        content_area.controls = ProductUI(show_table).build_form_product()
-        content_area.update()
-    
-    
-    def update_client():
-        content_area.controls = [*ClientUI(update_client).buid_form_client()]
+    def show_table_client():
+        content_area.controls = [ShowClient(show_table_client).build_table_client()]
         content_area.update()
     
     def add_client():
-        content_area.controls = ClientUI(update_client).buid_form_client()
+        content_area.controls = ClientUI(show_table_client).buid_form_client()
         content_area.update()
     
+    
+    def show_table():
+        content_area.controls = [ShowTable(show_table).build_table()]
+        content_area.update()
+
+
+    def add_form():
+        content_area.controls = [*ProductUI(show_table).build_form_product()]
+        content_area.update()
+    
+    
+    def products_sell():
+        content_area.controls = [*ProductClientSell(show_table_client).load_data()]
+        content_area.update
+   
     def handle_change(e):
         index = e.control.selected_index
         match index:
@@ -47,17 +57,11 @@ def main(page: ft.Page):
                 add_form()
             case 2:
                 add_client()
-        
-                
-        # if index == 0:
-        #     atualizar_tabela()
-        #     page.scroll = "always"
-        #     page.update()
-        # elif index == 1:
-        #     content_area.controls = adicionar_itens()
-        # elif index == 2:
-        #     content_area.controls = [ft.Text("Voce clicou no item 3")]
-            
+            case 3:
+                show_table_client()
+            case 4:
+                products_sell()
+                            
         content_area.update()
         drawer.open = False
         drawer.update()
@@ -85,6 +89,16 @@ def main(page: ft.Page):
                 label="Produtos Vendidos",
                 selected_icon=ft.Icons.PHONE,
             ),
+               ft.NavigationDrawerDestination(
+                icon=ft.Icon(ft.Icons.PHONE_OUTLINED),
+                label="Produtos Vendidos",
+                selected_icon=ft.Icons.PHONE,
+            ),
+               ft.NavigationDrawerDestination(
+                   icon=ft.Icon(ft.Icons.PHONE_ANDROID),
+                   label="Venda de produtos",
+                   selected_icon=ft.Icons.PHONE,
+               )
         ],  
     )
     
