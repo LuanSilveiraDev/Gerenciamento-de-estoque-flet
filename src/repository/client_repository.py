@@ -33,4 +33,14 @@ class ClientRepository:
             """,(client_id,)
         )
         self.db.conn.commit()
-        
+    
+    def update_client(self, client: Client):
+        self.db.cursor.execute(
+            """
+            UPDATE cliente
+            SET name = %s,
+                email = %s
+            
+            """, (client.name, client.email)
+        )
+        self.db.conn.commit()

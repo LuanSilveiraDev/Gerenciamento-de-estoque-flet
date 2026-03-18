@@ -2,8 +2,7 @@ import flet as ft
 from flet_toast import flet_toast
 from models.product_model import Product
 
-def show_update_dialog(page: ft.Page, product: Product, on_update_callback):
-    print("Página recebida no diálogo:", page)
+def show_update_product(page: ft.Page, product: Product, on_update_callback):
     desc_field = ft.TextField(label="Descrição", value=product.description)
     mark_field = ft.TextField(label="Marca", value=product.mark)
     value_field = ft.TextField(label="Valor", value=str(product.value)) 
